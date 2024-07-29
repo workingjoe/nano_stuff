@@ -1,7 +1,13 @@
 ## Jetson Nano -- experiments and such  
 
-* These files are a backup
-* 
+---
+# Good alternative info 
+* appears to be VERY much like my clone-board
+* [Waveshare_wiki](https://www.waveshare.com/wiki/JETSON-NANO-DEV-KIT)
+
+
+---
+* These steps are a backup documenting what I did --
 ---
 # Steps attempting to update Python version above 3.6
 
