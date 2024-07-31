@@ -105,6 +105,7 @@ while True:
         break
 
 # clean up
-cam.release()
+cam0.release()
+cam1.release()
 cv2.destroyAllWindows()
 
