@@ -4,7 +4,10 @@
 # Good alternative info 
 * appears to be VERY much like my clone-board
 * [Waveshare_wiki](https://www.waveshare.com/wiki/JETSON-NANO-DEV-KIT)
-
+---
+* for training
+* [Official_nVidia_hub](https://catalog.ngc.nvidia.com/?filters=&orderBy=scoreDESC&query=nano&page=&pageSize=)
+* [Jetson_ZOO](https://elinux.org/Jetson_Zoo)
 
 ---
 * These steps are a backup documenting what I did --
