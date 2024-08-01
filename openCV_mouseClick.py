@@ -1,6 +1,8 @@
 import cv2
 
 print(cv2.__version__)
+# print(cv2.getBuildInformation())
+
 
 # create a gstreamer pipeline command for CSI cameras
 def gstreamer_pipeline(
@@ -53,12 +55,30 @@ cv2.setMouseCallback('theCam', mouseClick)
 # camSet0='nvarguscamerasrc sensor-id=0 ! video/x-raw(memory:NVMM), width=3264, height=2464, format=NV12, framerate=21/1 ! nvvidconv flip-method=' + str(flip)+' ! video/x-raw, width='+str(dispW)+', height='+str(dispH)+', format=BGRx ! videoconvert ! video/x-raw, format=BGR ! appsink'
 # camSet1='nvarguscamerasrc sensor-id=1 ! video/x-raw(memory:NVMM), width=3264, height=2464, format=NV12, framerate=21/1 ! nvvidconv flip-method=' + str(flip)+' ! video/x-raw, width='+str(dispW)+', height='+str(dispH)+', format=BGRx ! videoconvert ! video/x-raw, format=BGR ! appsink'
 
+# for arducam there is a lens/camera calibration to setup...
+# https://docs.arducam.com/Nvidia-Jetson-Camera/Application-note/Fix-Red-Tint-with-ISP-Tuning/
+#
+# wget https://www.arducam.com/downloads/Jetson/Camera_overrides.tar.gz
+# tar zxvf Camera_overrides.tar.gz
+# sudo cp camera_overrides.isp /var/nvidia/nvcam/settings/
+# sudo chmod 664 /var/nvidia/nvcam/settings/camera_overrides.isp
+# sudo chown root:root /var/nvidia/nvcam/settings/camera_overrides.isp
+
+
+# camSet0 = gstreamer_pipeline( sensor_id=0, 
+#                              capture_width=3264,
+#                              capture_height=2464,
+#                              display_width=dispW,
+#                              display_height=dispH,
+#                              framerate=21,
+#                              flip_method=flip,
+#                            )
 camSet0 = gstreamer_pipeline( sensor_id=0, 
-                             capture_width=3264,
-                             capture_height=2464,
+                             capture_width=1920,
+                             capture_height=1080,
                              display_width=dispW,
                              display_height=dispH,
-                             framerate=21,
+                             framerate=30,
                              flip_method=flip,
                            )
 
@@ -70,12 +90,12 @@ camSet1 = gstreamer_pipeline( sensor_id=1,
                              framerate=30,
                              flip_method=flip,
                            )
-print(camSet1)
-print("------------------------------------")
+# print(camSet0)
+# print("------------------------------------")
 
 
-# create camera object
-cam = cv2.VideoCapture(camSet1)
+# create camera object for CSI connected camera
+cam = cv2.VideoCapture(camSet0)
 
 # USB webcam
 # cam = cv2.VideoCapture(2)
@@ -106,7 +126,7 @@ while True:
     #     dx *= -1
     # if (posY+boxH+dy) > dispH:
     #     dy *= -1
-    
+    s
     # if (posX+dx) <= 0:
     #     dx *= -1
     # if (posY+dy) <= 0:
