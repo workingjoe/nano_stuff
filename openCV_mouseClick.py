@@ -32,13 +32,25 @@ def gstreamer_pipeline(
         )
     )
 
-
+# some globals to save 'event' data for use in main
+evt   = -1
+coord = []  # array
+pnt   = ()  # tuple
 
 
 def mouseClick(event, x, y, flags, params):
+    global pnt 
+    global coord 
+    global evt 
     if event == cv2.EVENT_LBUTTONDOWN:
         print('MouseEvent was ', event)
         print(x, ' , ',y)
+        # save selected tuple in pnt array
+        pnt = (x,y)
+        evt = event
+        coord.append(pnt)
+
+
 
 
 dispW = 640
@@ -135,13 +147,26 @@ while True:
     # posX += dx
     # posY += dy
 
+    for somePoints in coord:
+        cv2.circle(frame, somePoints, 5, (0,0,250),-1)
+        font = cv2.FONT_HERSHEY_PLAIN
+        myStr = str(somePoints)
+        cv2.putText(frame, myStr, somePoints, font, 0.8, (250,250,0), 1)
+
+
     cv2.imshow('theCam', frame)
     if (initial == 0):
         cv2.moveWindow('theCam', 0, 0)
         initial = 1
 
-    if cv2.waitKey(1) == ord('q'):
+    keyCaught = cv2.waitKey(1)
+
+    if keyCaught == ord('q'):  # 'q' quit 
         break
+    if keyCaught == ord('c'):  # 'c' clear
+        coord = []
+        pnt   = ()
+        evt   = -1    
 
 # clean up
 cam.release()
