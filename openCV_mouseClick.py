@@ -1,6 +1,6 @@
 import cv2
 
-print(cv2.__version__)
+print(f'OpenCV Version : ' + cv2.__version__)
 # print(cv2.getBuildInformation())
 
 
@@ -126,7 +126,7 @@ while True:
     #     dx *= -1
     # if (posY+boxH+dy) > dispH:
     #     dy *= -1
-    s
+    #
     # if (posX+dx) <= 0:
     #     dx *= -1
     # if (posY+dy) <= 0:
