@@ -1,4 +1,5 @@
 import cv2
+import numpy as np
 
 print(f'OpenCV Version : ' + cv2.__version__)
 # print(cv2.getBuildInformation())
@@ -36,21 +37,35 @@ def gstreamer_pipeline(
 evt   = -1
 coord = []  # array
 pnt   = ()  # tuple
-
+# ask numpy to create image sized 250x250 with 3-values of 8-bit
+someImage = np.zeros((250,250,3), np.uint8)
 
 def mouseClick(event, x, y, flags, params):
     global pnt 
     global coord 
     global evt 
     if event == cv2.EVENT_LBUTTONDOWN:
-        print('MouseEvent was ', event)
+        print('MouseEvent was LeftButton ', event)
         print(x, ' , ',y)
         # save selected tuple in pnt array
         pnt = (x,y)
         evt = event
         coord.append(pnt)
 
-
+    if event == cv2.EVENT_RBUTTONDOWN:
+        print('MouseEvent was RightButton', event)
+        print(x, ' , ',y)
+        bluePixel  = frame[y,x,0] # B-G-R format so 0=Blue
+        greenPixel = frame[y,x,1] # B-G-R format so 0=Blue
+        redPixel   = frame[y,x,2] # B-G-R format so 0=Blue
+        print(bluePixel, greenPixel, redPixel)
+        colorStr = str(bluePixel)+',' + str(greenPixel) + ',' +str(redPixel)
+        someImage[:] = [bluePixel, greenPixel, redPixel]
+        fnt = cv2.FONT_HERSHEY_PLAIN
+        pColor = (255-int(bluePixel), 255-int(greenPixel), 255-int(redPixel)) # make contrasting color
+        cv2.putText(someImage, colorStr, (10,25), fnt, 0.8, pColor, 1)
+        cv2.imshow('pickedColor', someImage)
+        cv2.moveWindow('pickedColor', dispW + 100, 0)
 
 
 dispW = 640
@@ -149,9 +164,9 @@ while True:
 
     for somePoints in coord:
         cv2.circle(frame, somePoints, 5, (0,0,250),-1)
-        font = cv2.FONT_HERSHEY_PLAIN
+        fnt   = cv2.FONT_HERSHEY_PLAIN
         myStr = str(somePoints)
-        cv2.putText(frame, myStr, somePoints, font, 0.8, (250,250,0), 1)
+        cv2.putText(frame, myStr, somePoints, fnt, 0.8, (250,250,0), 1)
 
 
     cv2.imshow('theCam', frame)
