@@ -97,12 +97,28 @@ cv2.createTrackbar('xVal', 'theCam', 20, dispW, nothing)
 # 3rd arg is 'starting' value, nothing is callback
 cv2.createTrackbar('yVal', 'theCam', 26, dispH, nothing)
 
+# 3rd arg is 'starting' value, nothing is callback
+cv2.createTrackbar('hVal', 'theCam', 26, dispH, nothing)
+
+# 3rd arg is 'starting' value, nothing is callback
+cv2.createTrackbar('wVal', 'theCam', 26, dispW, nothing)
+
 
 while True:
     ret, frame = cam.read()
     xValue = cv2.getTrackbarPos('xVal', 'theCam')
     yValue = cv2.getTrackbarPos('yVal', 'theCam')
-    cv2.circle(frame, (xValue, yValue),5, (255, 0,0), -1)
+    hValue = cv2.getTrackbarPos('hVal', 'theCam')
+    wValue = cv2.getTrackbarPos('wVal', 'theCam')
+
+    if (xValue + wValue > dispW):
+        wValue = (dispW - xValue)
+
+     
+#    cv2.circle(frame, (xValue, yValue),5, (255, 0,0), -1)
+    cv2.rectangle(frame, (xValue, yValue), 
+                        ((xValue + wValue),(yValue + hValue)),
+                        (0,250,0), 2)
 
     cv2.imshow('theCam', frame)
     cv2.moveWindow('theCam', 0, 0)
