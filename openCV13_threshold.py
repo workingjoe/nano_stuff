@@ -5,17 +5,28 @@ import numpy as np
 # print(cv2.__version__)
 # print(cv2.getBuildInformation())
 
-# create some MASKING images
+# build background, build foreground to then make a composite image
 
-img1 = np.zeros((480,640,1), np.uint8)  # one number so, GRAY scale
-img1[0:480,0:320] = 255 # make all rows, left-half columns a constant white
-img2 = np.zeros((480,640,1), np.uint8)  # one number so, GRAY scale
-img2[190:290,270:370] = 255 # make box 100 bit box in middle 
+cvLogo = cv2.imread('cv.jpg')
+cvLogo = cv2.resize(cvLogo, (320,240))
+cvLogoGray = cv2.cvtColor(cvLogo, cv2.COLOR_BGR2GRAY)
+cv2.imshow('cv Logo Gray', cvLogoGray)
+cv2.moveWindow('cv Logo Gray', 0, 350)
 
-bitAnd = cv2.bitwise_and(img1, img2)
-bitOR  = cv2.bitwise_or(img1, img2)
-bitXOR = cv2.bitwise_xor(img1, img2)
+# now create a mask with threshold for backgound
+dummy,BGMask = cv2.threshold(cvLogoGray, 220, 255, cv2.THRESH_BINARY)
+cv2.imshow('bg_mask', BGMask)
+cv2.moveWindow('bg_mask', 385, 100)
 
+# build foreground mask
+FGMask = cv2.bitwise_not(BGMask)
+cv2.imshow('fg_mask', FGMask)
+cv2.moveWindow('fg_mask', 385, 350)
+
+# put original color logo into MASK
+ForeGround = cv2.bitwise_and(cvLogo, cvLogo, mask=FGMask)
+cv2.imshow('foreground', ForeGround)
+cv2.moveWindow('foreground', 703, 350)
 
 # create a gstreamer pipeline command for CSI cameras
 def gstreamer_pipeline(
@@ -46,8 +57,8 @@ def gstreamer_pipeline(
     )
 
 
-dispW=640
-dispH=480
+dispW=320
+dispH=240
 flip=0
 key = 0
 # horrible string ... one long gstreamer launch
@@ -88,12 +99,12 @@ camSet1 = gstreamer_pipeline( sensor_id=1,
                              framerate=30,
                              flip_method=flip,
                            )
-print(camSet0)
+print(camSet1)
 print("------------------------------------")
 
 
 # create CSI camera object
-cam = cv2.VideoCapture(camSet0)
+cam = cv2.VideoCapture(camSet1)
 
 # or create USB webcam object (arg is 0,1, or 2 depends on CSI cameras installed)
 # cam = cv2.VideoCapture(2)
@@ -101,26 +112,22 @@ cam = cv2.VideoCapture(camSet0)
 while True:
     ret, frame = cam.read()
 
-    cv2.imshow('anIMG', img1)
-    cv2.moveWindow('anIMG', 0, 520)
+    BGimage = cv2.bitwise_and(frame, frame, mask=BGMask)
+    cv2.imshow('BG', BGimage)
+    cv2.moveWindow('BG', 703, 100)
 
-    cv2.imshow('anIMG2', img2)
-    cv2.moveWindow('anIMG2', 705, 0)    
+    CompositeImage = cv2.add(BGimage, ForeGround)
+    cv2.imshow('Composite', CompositeImage)
+    cv2.moveWindow('Composite', 1017, 100)
 
-    cv2.imshow('AndIMG', bitAnd)
-    cv2.moveWindow('AndIMG', 705, 520)  
 
-    cv2.imshow('OrIMG', bitOR)
-    cv2.moveWindow('OrIMG', 1340, 0)  
+    BlendedImage = cv2.addWeighted(frame, 0.7, CompositeImage, 0.3, 0)
+    cv2.imshow('BlendedImage', BlendedImage)
+    cv2.moveWindow('BlendedImage', 1017, 350)
 
-    cv2.imshow('XorIMG', bitXOR)
-    cv2.moveWindow('XorIMG', 1340, 520)  
-
-    # now apply the masks...
-    frame=cv2.bitwise_and(frame, frame, mask=img2)
 
     cv2.imshow('theCam', frame)
-    cv2.moveWindow('theCam', 0, 0)
+    cv2.moveWindow('theCam', 0, 100)
     if cv2.waitKey(1) == ord('q'):
         break
 
