@@ -1,7 +1,21 @@
 import cv2
+import numpy as np 
 
-print(cv2.__version__)
+
+# print(cv2.__version__)
 # print(cv2.getBuildInformation())
+
+# create some MASKING images
+
+img1 = np.zeros((480,640,1), np.uint8)  # one number so, GRAY scale
+img1[0:480,0:320] = 255 # make all rows, left-half columns a constant white
+img2 = np.zeros((480,640,1), np.uint8)  # one number so, GRAY scale
+img2[190:290,270:370] = 255 # make box 100 bit box in middle 
+
+bitAnd = cv2.bitwise_and(img1, img2)
+bitOR  = cv2.bitwise_or(img1, img2)
+bitXOR = cv2.bitwise_xor(img1, img2)
+
 
 # create a gstreamer pipeline command for CSI cameras
 def gstreamer_pipeline(
@@ -74,12 +88,12 @@ camSet1 = gstreamer_pipeline( sensor_id=1,
                              framerate=30,
                              flip_method=flip,
                            )
-print(camSet1)
+print(camSet0)
 print("------------------------------------")
 
 
 # create CSI camera object
-cam = cv2.VideoCapture(camSet1)
+cam = cv2.VideoCapture(camSet0)
 
 # or create USB webcam object (arg is 0,1, or 2 depends on CSI cameras installed)
 # cam = cv2.VideoCapture(2)
@@ -87,19 +101,20 @@ cam = cv2.VideoCapture(camSet1)
 while True:
     ret, frame = cam.read()
 
-    # roi = frame[50:250, 200:400] # roi is not a COPY, it is a REFERENCE 
-    roi = frame[50:250, 200:400].copy() # roi *IS* a copy now...
-    roiGray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
+    cv2.imshow('anIMG', img1)
+    cv2.moveWindow('anIMG', 0, 520)
 
-    # frame[50:250, 200:400]=[0,128,0] # inlay green box in ROI spot
-    roiGray = cv2.cvtColor(roiGray, cv2.COLOR_GRAY2BGR)    
-    frame[50:250, 200:400]=roiGray # inlay grayed image
+    cv2.imshow('anIMG2', img2)
+    cv2.moveWindow('anIMG2', 705, 0)    
 
-    cv2.imshow('ROI', roi)
-    cv2.moveWindow('ROI', 705, 0)
-    cv2.imshow('ROIGRAY', roiGray)
-    cv2.moveWindow('ROIGRAY', 705, 256)
+    cv2.imshow('AndIMG', bitAnd)
+    cv2.moveWindow('AndIMG', 705, 520)  
 
+    cv2.imshow('OrIMG', bitOR)
+    cv2.moveWindow('OrIMG', 1340, 0)  
+
+    cv2.imshow('XorIMG', bitXOR)
+    cv2.moveWindow('XorIMG', 1340, 520)  
 
 
     cv2.imshow('theCam', frame)
@@ -110,4 +125,3 @@ while True:
 # clean up
 cam.release()
 cv2.destroyAllWindows()
-
