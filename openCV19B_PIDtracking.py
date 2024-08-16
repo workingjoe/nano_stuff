@@ -6,20 +6,23 @@ from simple_pid.pid import PID as PID  # attempt to use PID controllers for each
 
 print(cv2.__version__)
 
+# IDEA is to have PID handle CORRECTIONS from ZERO, 
+# so setpoint is ZERO, output_limits are max adjustments per sample
+# adjustments are accumulated to position with
 pidPan    = PID()
-pidPan.Kp = -0.02 # kp proportional gain
-pidPan.Ki = -0.005 # ki integral gain
-pidPan.Kd = -0.001 # kd derivative gain    
+pidPan.Kp = 0.025 # kp proportional gain
+pidPan.Ki = 0.004 # ki integral gain
+pidPan.Kd = 0.001 # kd derivative gain    
 pidPan.setpoint      = 0  # attempt to achieve ZERO error in direction
-pidPan.output_limits = (-179, 179)
+pidPan.output_limits = (-5, 5)
 pidPan.sample_time   = (1 / 30) # assume 30hz frame rate
 
 pidTilt    = PID()
-pidTilt.Kp = 0.02    # kp proportional gain
-pidTilt.Ki = 0.001 # ki integral gain
-pidTilt.Kd = 0.0001 # kd derivative gain    
+pidTilt.Kp = 0.025 # kp proportional gain
+pidTilt.Ki = 0.004 # ki integral gain
+pidTilt.Kd = 0.001 # kd derivative gain    
 pidTilt.setpoint      = 0        # attempt to achieve ZERO error in direction
-pidTilt.output_limits = (-179, 179)
+pidTilt.output_limits = (-5, 5)
 pidTilt.sample_time   = (1 / 30) # assume 30hz frame rate
 
 
@@ -91,8 +94,8 @@ flip  = 0
 
 noiseThreshold = 200
 
-panValue  = 58   # 90
-tiltValue = 129  # 90
+panValue  = 60   # 90
+tiltValue = 124  # 90
 
 # takes a WHILE to establish this ... like 4-6 seconds
 print(f"Initializing Servo control -- this takes a few seconds...")
@@ -204,11 +207,8 @@ if (camSet2 == 2) and (cam.isOpened()) :
 
 
 # tell PID controllers initial conditions
-pidPan.set_auto_mode(True,  last_output = panValue)
-pidTilt.set_auto_mode(True, last_output = tiltValue)
-
-pidPan.setPoint  = (int(width / 2 ))
-pidTilt.setpoint = (int(height /2 ))
+pidPan.set_auto_mode(True,  last_output = 0)
+pidTilt.set_auto_mode(True, last_output = 0)
 
 
 while True:
@@ -264,21 +264,16 @@ while True:
             centerX = int(width  / 2)
             centerY = int(height / 2)
             # find out how big error is 
-            errorX = (x - centerX)
-            errorY = (y - centerY)
+            errorX = (centerX - objX)
+            errorY = (centerY - objY)
 
             errorpanValue = pidPan(errorX)
-#            print(f"errorpanValue: {errorpanValue} errorX: {errorX}")
-            if (errorpanValue >= 1.0) or (errorpanValue <= -1.0) :
-                adjust_pan( errorpanValue )
+            # print(f"errorpanValue: {errorpanValue} errorX: {errorX}")
+            adjust_pan( errorpanValue )
 
             errortiltValue = pidTilt(errorY)
-            print(f"errortiltValue: {errortiltValue} errorY: {errorY}")
-            if (errortiltValue >= 1.0) or (errortiltValue <= -1.0) :
-                if (errorY < 0) :
-                    adjust_tilt( (-1 * errortiltValue) )
-                else :
-                    adjust_tilt( errortiltValue )
+            # print(f"errortiltValue: {errortiltValue} errorY: {errorY}")
+            adjust_tilt( errortiltValue )
     
     # cv2.drawContours(frame, contours, 0, (200,200,0),2)
 
