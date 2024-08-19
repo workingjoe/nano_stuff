@@ -29,9 +29,19 @@ print('Encoding...')
 nancyEncoded = face_recognition.face_encodings(nancyFace)[0]
 print('Encoded...')
 
+print('Loading image...')
+penceFace = face_recognition.load_image_file('/home/bubba/Downloads/Python_stuff/FaceRecognizer/demoImages/known/Mike Pence.jpg')
+
+# returns series of arrays... 
+print('Encoding...')
+penceEncoded = face_recognition.face_encodings(penceFace)[0]
+print('Encoded...')
+
+
+
 # need array of NAMES (meta data) to track encodings and names by position
-Encodings = [donEncoded, nancyEncoded]
-Names     = ['Donald Trump', 'Nancy Pelosi']
+Encodings = [donEncoded, nancyEncoded, penceEncoded]
+Names     = ['Donald Trump', 'Nancy Pelosi', 'Mike Pence']
 
 
 print('Evaluating images...')
@@ -39,7 +49,7 @@ print('Evaluating images...')
 # ======================
 # now load test image to compare with known face
 font = cv2.FONT_HERSHEY_SIMPLEX
-testImage = face_recognition.load_image_file('/home/bubba/Downloads/Python_stuff/FaceRecognizer/demoImages/unknown/u3.jpg')
+testImage = face_recognition.load_image_file('/home/bubba/Downloads/Python_stuff/FaceRecognizer/demoImages/unknown/u11.jpg')
 
 print('Finding faces...')
 facePositions = face_recognition.face_locations(testImage)
@@ -62,7 +72,7 @@ for (top, left, bottom, right), face_encoding in zip(facePositions, allEncodings
         name = Names[first_match_index]
 
     cv2.rectangle(testbgrimage, (left, top), (right, bottom), (0,0,255), 2)
-    cv2.putText(testbgrimage, name, (left, top-6), font, 0.5, (255,255,0), 1)
+    cv2.putText(testbgrimage, name, (left, top-6), font, 0.5, (0, 255, 255), 1)
 
 cv2.imshow('myWindow', testbgrimage)
 
