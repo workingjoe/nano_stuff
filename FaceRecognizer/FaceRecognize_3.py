@@ -29,6 +29,10 @@ for root, dirs, files in os.walk(trainingPath):
         Encodings.append(encoding)
         Names.append(name)
 
+if len(Names) > 0:
+    print(f'Saving {len(Names)} file encoded data')
+    Encodings.save('Encodings.npy', a)
+    Names.save('Names.npy', a)
 
 print('Evaluating images...')
 
@@ -63,6 +67,7 @@ for root, dirs, files in os.walk(testingPath):
                 cv2.putText(testbgrimage, name, (left, top-6), font, 0.5, (0, 255, 255), 1)
 
         cv2.imshow('myWindow', testbgrimage)
+        cv2.moveWindow('myWindow', 0,0)
 
         if cv2.waitKey(0) == ord('q'):
             cv2.destroyAllWindows()
