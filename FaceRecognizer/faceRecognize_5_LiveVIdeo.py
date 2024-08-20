@@ -132,8 +132,12 @@ font = cv2.FONT_HERSHEY_SIMPLEX
 
 while True:
     ret, frame = cam.read()
+
+    # scale down version for comparison speed up, 
+    frameSmall = cv2.resize(frame, (0,0), fx=0.33, fy=0.33)
+
     # change to frame recognizer format
-    frameRGB = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    frameRGB = cv2.cvtColor(frameSmall, cv2.COLOR_BGR2RGB)
     facePositions = face_recognition.face_locations(frameRGB, model='cnn')  # parallel model jetson_nano 
     allEncodings = face_recognition.face_encodings(frameRGB, facePositions) # encode each found face
 
@@ -143,6 +147,10 @@ while True:
         if True in matches :
             first_match_index = matches.index(True) # get position of True in matches
             name = Names[first_match_index]
+            top    = top*3
+            bottom = bottom*3
+            left   = left*3
+            right  = right*3
             frame = cv2.rectangle( frame, (left, top), (right, bottom),  (0,0,255),2)
             frame = cv2.putText(frame, name, (left, top-6), font, 0.75, (0,255,255),2)
 
