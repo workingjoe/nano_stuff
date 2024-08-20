@@ -1,6 +1,7 @@
 import face_recognition
 import cv2
 import os
+import pickle
 
 
 print('Train a whole folder...')
@@ -29,10 +30,25 @@ for root, dirs, files in os.walk(trainingPath):
         Encodings.append(encoding)
         Names.append(name)
 
-# if len(Names) > 0:
-#     print(f'Saving {len(Names)} file encoded data')
-#     Encodings.save('Encodings.npy', a)
-#     Names.save('Names.npy', a)
+if len(Names) > 0:
+    print(f'Saving {len(Names)} file encoded data')
+    with open('Train.pkl','wb') as theFile:
+        pickle.dump(Names, theFile)
+        pickle.dump(Encodings, theFile)
+#        close(theFile)
+
+Names = []     # zap contents of Names
+Encodings = [] # zap contents of Encodings
+
+# Restore from pickle 
+with open('Train.pkl', 'rb') as theFile:
+    Names = pickle.load(theFile)
+    Encodings = pickle.load(theFile)
+
+if len(Names) < 1 :
+    print("No Training Data was loaded!")
+    exit
+
 
 print('Evaluating images...')
 
@@ -70,5 +86,8 @@ for root, dirs, files in os.walk(testingPath):
         cv2.moveWindow('myWindow', 0,0)
 
         if cv2.waitKey(0) == ord('q'):
+            cv2.destroyAllWindows()
+            quit()
+        else :
             cv2.destroyAllWindows()
 

@@ -1,9 +1,8 @@
 import face_recognition
 import cv2
 import os
+import pickle
 
-
-print('Train a whole folder...')
 print(f'Face_Recognition_version: {face_recognition.__version__}')
 print(f'OpenCV_version          : {cv2.__version__}')
 
@@ -15,26 +14,17 @@ trainingPath = '/home/bubba/Downloads/Python_stuff/FaceRecognizer/demoImages/kno
 testingPath = '/home/bubba/Downloads/Python_stuff/FaceRecognizer/demoImages/unknown'
 
 
-# recursively walk thru every file in ... getting array of files
-for root, dirs, files in os.walk(trainingPath):
-#    print(files)
-    for filename in files:
-        fullpath = os.path.join(root, filename)
-#        print(fullpath)
-        name = os.path.splitext(filename)[0]  # remove extension leaving just 'person name'
-        print(f'Encoding \"{name}\" ')
-        person = face_recognition.load_image_file(fullpath)
-        encoding = face_recognition.face_encodings(person)[0] # take first person if more than one
-        # save off data pair of encoding and name
-        Encodings.append(encoding)
-        Names.append(name)
+# Restore from pickle 
+with open('Train.pkl', 'rb') as theFile:
+    Names = pickle.load(theFile)
+    Encodings = pickle.load(theFile)
 
-# if len(Names) > 0:
-#     print(f'Saving {len(Names)} file encoded data')
-#     Encodings.save('Encodings.npy', a)
-#     Names.save('Names.npy', a)
+if len(Names) < 1 :
+    print("No Training Data was loaded!, run trainSave first")
+    exit
 
-print('Evaluating images...')
+
+print(f'Evaluating images from \"{testingPath}\" ')
 
 font = cv2.FONT_HERSHEY_SIMPLEX
 
@@ -70,5 +60,8 @@ for root, dirs, files in os.walk(testingPath):
         cv2.moveWindow('myWindow', 0,0)
 
         if cv2.waitKey(0) == ord('q'):
+            cv2.destroyAllWindows()
+            quit()
+        else :
             cv2.destroyAllWindows()
 
