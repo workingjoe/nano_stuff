@@ -210,6 +210,13 @@ if (camSet2 == 2) and (cam.isOpened()) :
 pidPan.set_auto_mode(True,  last_output = 0)
 pidTilt.set_auto_mode(True, last_output = 0)
 
+#servo[0] is  pan left-right
+myKit.servo[0].angle = panValue
+#servo[1] is pan_up_down
+myKit.servo[1].angle = tiltValue
+
+# timem for servos to settle and camera to come up
+time.sleep(2)
 
 while True:
     ret, frame = cam.read()
