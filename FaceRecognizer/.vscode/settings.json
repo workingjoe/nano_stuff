@@ -1,7 +1,9 @@
 {
     "python.pythonPath": "/home/bubba/Downloads/Python_stuff/adaFruit/.venv/bin/python",
-    "python.linting.pylintArgs": ["--generate-members", "--extension-pkg-whitelist=cv2,face_recognition"],
-    "python.autoComplete.extraPaths": ["/home/bubba/Downloads/Python_stuff/adaFruit/.venv/lib/python3.8/site-packages",
+    "python.linting.pylintArgs": ["--generate-members", 
+                                  "--extension-pkg-whitelist=cv2", 
+                                  "--extension-pkg-whitelist=face_recognition"],
+    "python.analysis.extraPaths": ["/home/bubba/Downloads/Python_stuff/adaFruit/.venv/lib/python3.8/site-packages",
                                        "/home/bubba/Downloads/Python_stuff/adaFruit/.venv/lib/python3.8/site-packages/cv2",
                                        "/home/bubba/Downloads/Python_stuff/adaFruit/.venv/lib/python3.8/site-packages/face_recognition"],    
     "python.linting.pylintEnabled": true,
