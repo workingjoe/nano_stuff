@@ -23,12 +23,25 @@
   gst-launch-1.0 audiotestsrc wave=3 freq=900 volume=0.75 ! alsasink
   
    
-* gst-inspect alsasink
+* gst-inspect-1.0 alsasink
   --- look at capabilities 'audio/x-raw' and format='U8' for instance
   gst-launch-1.0 audiotestsrc wave=3 freq=900 volume=0.75 ! audio/x-raw,format=U8 ! alsasink
 
+---
+* gst-launch-1.0 videotestsrc ! ximagesink
+* gst-inspect ximagesink
+  look at video 'sink' capabilties -- 'video/x-raw'
+  can also use videoconvert (software convertor)
+  
 
+
+* gst-launch-1.0 videotestsrc ! autovideoconvert ! ximagesink
+
+* CSI camera  -- use nvarguscamerasrc 
+
+
+---
 
 * videoconvert ! video/x-raw, format=BGR ! appsink
 
-* 'v4l2src device=/dev/video2 ! video/x-raw,width
+* 'v4l2src device=/dev/video2 ! video/x-raw,width='+str(width)+',height='+str(height)+'  etc
