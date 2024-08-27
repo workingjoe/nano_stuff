@@ -109,7 +109,7 @@ camSet1 = gstreamer_pipeline( sensor_id=1,
 # camSet2 = 'gst-launch-1.0 v4l2src device=/dev/video2 ! image/jpeg,format=MJPG,width=640,height=480,framerate=30/1 ! nvv4l2decoder mjpeg=1 ! nvvidconv ! autovideosink'
 camSetUSB = 2
 
-camSet = camSetUSB # use: camSet0, camSet1, camSetUSB
+camSet = camSet1 # use: camSet0, camSet1, camSetUSB
 
 # for USB use V4L backend, else use defalt CSI/FFMPEG 
 if (camSet == camSetUSB):

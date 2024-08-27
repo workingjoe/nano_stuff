@@ -103,8 +103,8 @@ camSet1 = gstreamer_pipeline( sensor_id=1,
 # check v4l2-ctl -d2 --list-formats-ext and see what parms work...
 # camSet2 = 'gst-launch-1.0 v4l2src device=/dev/video2 ! image/jpeg,format=MJPG,width=640,height=480,framerate=30/1 ! nvv4l2decoder mjpeg=1 ! nvvidconv ! autovideosink'
 
-camSet2 = camSet1 #2
-cam = cv2.VideoCapture(camSet2)
+camSet2 = 2
+cam = cv2.VideoCapture(camSet0)
 
 # fixup USB camera to reasonable size and formatting
 if (camSet2 == 2) and (cam.isOpened()) :
