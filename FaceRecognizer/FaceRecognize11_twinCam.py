@@ -4,6 +4,7 @@ from rich import pretty
 from threading import Thread
 import cv2
 import time
+import numpy as np
 
 
 # create a gstreamer pipeline command for CSI cameras
@@ -18,11 +19,12 @@ def gstreamer_pipeline(
 ):
     return (
         "nvarguscamerasrc sensor-id=%d ! "
-        "video/x-raw(memory:NVMM), width=%d, height=%d, framerate=%d/1 ! "
+        "video/x-raw(memory:NVMM),width=%d,height=%d,format=NV12,framerate=%d/1 ! "
         "nvvidconv flip-method=%d ! "
-        "video/x-raw, width=%d, height=%d, format=BGRx ! "
+        "video/x-raw,width=%d,height=%d,format=BGRx ! "
         "videoconvert ! "
-        "video/x-raw, format=BGR ! appsink"
+#        "video/x-raw,format=BGR ! autovideoconvert | xvimagesink -e" # used for command-line
+        "video/x-raw,format=BGR ! appsink"
         % (
             sensor_id,
             capture_width,
@@ -78,17 +80,20 @@ camSet1 = gstreamer_pipeline( sensor_id=1,
                              framerate=30,
                              flip_method=flip,
                            )
+# NOTE: This does not work.  It *does* from a command-line, so I don't know what's going on...
+# camSetUSB = 'v4l2src device=/dev/video2 ! video/x-raw,width=640,height=480,format=YUY2 ! autovideoconvert ! appsink'                        
 camSetUSB = 2
 
+# print(f'camset0 = \n\"{camSet0}\"')
 
 # class to manage a camera
 #   -- launch
 #   -- operate in independent thread
 #   -- collect frames, provide way for user to get frame
 class vStream:
-    def __init__(self, camSet):
-        global width
-        global height
+    def __init__(self, camSet, wide, high):
+        self.width  = wide
+        self.height = high
 
         # for USB use V4L backend, else use defalt CSI/FFMPEG 
         if (camSet == camSetUSB):
@@ -98,15 +103,15 @@ class vStream:
 
         # fixup USB camera to reasonable size and formatting
         if (camSet == camSetUSB) and (self.capture.isOpened()) :
-            width  = self.capture.get(cv2.CAP_PROP_FRAME_WIDTH)
-            height = self.capture.get(cv2.CAP_PROP_FRAME_HEIGHT)
+            self.width  = self.capture.get(cv2.CAP_PROP_FRAME_WIDTH)
+            self.height = self.capture.get(cv2.CAP_PROP_FRAME_HEIGHT)
         #     print(f"Width: {width} x Height: {height}")
-            if (width != dispW):
-                ret = self.capture.set(cv2.CAP_PROP_FRAME_WIDTH,  dispW)
+            if (self.width != wide):
+                ret = self.capture.set(cv2.CAP_PROP_FRAME_WIDTH,  wide)
                 # if not ret:
                 #     print("can't set WIDTH")
-            if (height != dispH):
-                ret = self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, dispH)
+            if (self.height != high):
+                ret = self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, high)
                 # if not ret:
                 #     print("can't set HEIGHT")
 
@@ -114,8 +119,8 @@ class vStream:
             # if not ret:
             #     print("can't set CONVERT_RGB")
 
-            width  = dispW # assume cam.get(cv2.CAP_PROP_FRAME_WIDTH)
-            height = dispH # assume cam.get(cv2.CAP_PROP_FRAME_HEIGHT)
+            # width  = dispW # assume cam.get(cv2.CAP_PROP_FRAME_WIDTH)
+            # height = dispH # assume cam.get(cv2.CAP_PROP_FRAME_HEIGHT)
             # print(f"New Width: {width} x New Height: {height}")
 
         self.theThread = Thread(target=self.update, args = ([]))
@@ -132,9 +137,9 @@ class vStream:
         return self.frame
 
 
-camera_1 = vStream(camSet0)
-camera_2 = vStream(camSet1)
-# camera_2 = vStream(camSetUSB)
+camera_1 = vStream(camSet1, dispW, dispH)
+# camera_2 = vStream(camSet0, dispW, dispH)
+camera_2 = vStream(camSetUSB, dispW, dispH)
 
 while True:
     while camera_1.theThread._started._flag == False:
@@ -147,21 +152,17 @@ while True:
 
     try:
 
-        myFrame1 = camera_1.getFrame()
-        if myFrame1 is not None:
-            cv2.imshow('nanoCam', myFrame1)
-        
+        myFrame1 = camera_1.getFrame()      
         myFrame2 = camera_2.getFrame()
-        if myFrame2 is not None:        
-            cv2.imshow('nanoCam2',myFrame2)
-    
-    except:
-        print('Frame not available... retrying...')
+        if myFrame1 is not None and myFrame2 is not None:        
+            myComboFrames = np.hstack((myFrame1,myFrame2))
+            cv2.imshow('nanoCamCombo',myComboFrames)    
+            if frame_moved == 0:
+                cv2.moveWindow('nanoCamCombo',0,0)
+                frame_moved = 1            
 
-    if frame_moved == 0:
-        cv2.moveWindow('nanoCam',0,0)
-        cv2.moveWindow('nanoCam2',660,0)        
-        frame_moved = 1
+    except:
+        print('Frame(s) not available... retrying...')
 
     
     if cv2.waitKey(1) == ord('q'):

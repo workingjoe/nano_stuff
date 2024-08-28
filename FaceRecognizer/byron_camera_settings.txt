@@ -1,0 +1,18 @@
+works:
+USB camera
+gst-launch-1.0 v4l2src device="/dev/video2" ! video/x-raw, width=640, height=480, format=YUY2 ! autovideoconvert ! xvimagesink -e
+gst-launch-1.0 v4l2src device=/dev/video2 ! video/x-raw,width=640,height=480,format=YUY2 ! videoconvert ! video/x-raw,format=BGR ! autovideoconvert ! xvimagesink -e
+
+CSI camera
+
+Using:
+
+
+
+gst-launch-1.0 nvarguscamerasrc sensor-id=0 ! 'video/x-raw(memory:NVMM), width=1920, height=1080, format=NV12, framerate=30/1' ! nvvidconv flip-method=0 ! 'video/x-raw, width=640, height=480, format=BGRx' ! videoconvert ! 'video/x-raw, format=BGR' ! autovideoconvert ! xvimagesink -e
+
+gst-launch-1.0 nvarguscamerasrc sensor-id=0 ! 'video/x-raw(memory:NVMM), width=1920, height=1080, format=NV12, framerate=30/1' ! nvvidconv flip-method=0 ! 'video/x-raw, width=640, height=480, format=BGRx' ! videoconvert ! 'video/x-raw, format=BGR' ! autovideoconvert ! nveglglessink -e
+
+gst-launch-1.0 nvarguscamerasrc sensor-id=0 ! 'video/x-raw(memory:NVMM), width=1920, height=1080, format=NV12, framerate=30/1' ! nvvidconv flip-method=0 ! 'video/x-raw, width=640, height=480, format=NV12' ! nveglglessink -e
+
+=============================================================
