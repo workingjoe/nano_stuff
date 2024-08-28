@@ -118,7 +118,7 @@ class vStream:
             height = dispH # assume cam.get(cv2.CAP_PROP_FRAME_HEIGHT)
             # print(f"New Width: {width} x New Height: {height}")
 
-        self.theThread = Thread(target=self.update(), args = ([]))
+        self.theThread = Thread(target=self.update, args = ([]))
         self.theThread.daemon = True
         self.frame = None
         self.theThread.start()
@@ -132,18 +132,18 @@ class vStream:
         return self.frame
 
 
-camera_1 = vStream(2)
-# camera_2 = vStream(2)
-# camera_3 = vStream(camSetUSB)
+camera_1 = vStream(camSet0)
+camera_2 = vStream(camSet1)
+# camera_2 = vStream(camSetUSB)
 
 while True:
     while camera_1.theThread._started._flag == False:
         print('waiting for camera_1 to start...')
         time.sleep(1)
 
-    # while camera_2.theThread._started._flag == False:
-    #     print('waiting for camera_2 to start...')
-    #     time.sleep(1)
+    while camera_2.theThread._started._flag == False:
+        print('waiting for camera_2 to start...')
+        time.sleep(1)
 
     try:
 
@@ -151,16 +151,16 @@ while True:
         if myFrame1 is not None:
             cv2.imshow('nanoCam', myFrame1)
         
-        # myFrame2 = camera_2.getFrame()
-        # if myFrame2 is not None:        
-        #     cv2.imshow('nanoCam2',myFrame2)
+        myFrame2 = camera_2.getFrame()
+        if myFrame2 is not None:        
+            cv2.imshow('nanoCam2',myFrame2)
     
     except:
         print('Frame not available... retrying...')
 
     if frame_moved == 0:
         cv2.moveWindow('nanoCam',0,0)
-        # cv2.moveWindow('nanoCam2',660,0)        
+        cv2.moveWindow('nanoCam2',660,0)        
         frame_moved = 1
 
     
